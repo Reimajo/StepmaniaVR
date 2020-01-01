@@ -299,23 +299,23 @@ void dprintf(const char *fmt, ...)
 //-----------------------------------------------------------------------------
 // ################## OUR SOURCE CODE FOR STEPMANIA FROM HERE ON ###################
 //
-// This program was made by KeksTheFurry and Tekki in one day with almost zero knowledge about SteamVR and C++.
-// It uses third party source code from SteamVR as well as code snippets from various websites.
-// We do not claim any of that, do whatever you want with it. This source code is very ugly and we are aware of that.
-// The only purpose of this program is to have a proof-of-concept that this is possible and works in theory.
-//
-// This tool requieres Steam VR being up & running before you start it. You need 2 Vive Trackers 
-// on your feet or on your legs (being on your ancles & facing forward is recommended).
-//
-// You should have a 3 x 3 tile area with 30cm x 30cm tiles which acts as your Stepmania dancepad.
-// You need at least 2 corners (top right and bottom left, e.g. 134cm apart) for calibration. 
-// It is recommended to have the middle pile out of a material that you can feel under your feet, 
-// e.g. a cardboard cutout with double-tape on the bottom to stick to the floor.
-//
-// After startup of this program, you have 10 seconds to stay front-facing on your two calibration points 
-// (trackers must be right over your calibration points). This program does not calculate any offset for your feet, 
-// it uses the raw tracker position for everything! As soon as StepMania is being started, the calibration is finished 
-// and you should be able to play.
+ //This program was made by KeksTheFurry and Tekki in one day with almost zero knowledge about SteamVR and C++.
+ //It uses third party source code from SteamVR as well as code snippets from various websites.
+ //We do not claim any of that, do whatever you want with it. This source code is very ugly and we are aware of that.
+ //The only purpose of this program is to have a proof-of-concept that this is possible and works in theory.
+
+ //This tool requieres Steam VR being up & running before you start it. You need 2 Vive Trackers 
+ //on your feet or on your legs (being on your ancles & facing forward is recommended).
+
+ //You should have a 3 x 3 tile area with 30cm x 30cm tiles which acts as your Stepmania dancepad.
+ //You need at least 2 corners (top right and bottom left, e.g. 134cm apart) for calibration. 
+ //It is recommended to have the middle pile out of a material that you can feel under your feet, 
+ //e.g. a cardboard cutout with double-tape on the bottom to stick to the floor.
+
+ //After startup of this program, you have 10 seconds to stay front-facing on your two calibration points 
+ //(trackers must be right over your calibration points). This program does not calculate any offset for your feet, 
+ //it uses the raw tracker position for everything! As soon as StepMania is being started, the calibration is finished 
+ //and you should be able to play.
 // 
 //-----------------------------------------------------------------------------
 
@@ -395,7 +395,15 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 				start = std::chrono::high_resolution_clock::now();
 			}
-			if (position.v[1] - bodenhoeheY < 0.03f) {
+			bool minimumHeightNormalReached = false;
+			bool minimumHeightExtendedReached = false;
+			if (position.v[1] - bodenhoeheY < 0.03f) { // 0.03f is known good value
+				minimumHeightNormalReached = true;
+			}
+			else if (position.v[1] - bodenhoeheY < 0.04f) {
+				minimumHeightExtendedReached = true;
+				//dprintf("\n%.5f", position.v[1] - bodenhoeheY);
+			}
 
 				float vertArrowUp[2][4]{
 					{ p32_X, p33_X, p43_X, p42_X },{ p32_Y, p33_Y, p43_Y, p42_Y }
@@ -414,7 +422,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 				static bool arrowUpHit = false;
 				if (arrowUpHit == false) {
 					int hitTest = npoly(nvert, vertArrowUp[0], vertArrowUp[1], position.v[0], position.v[2]);
-					if (hitTest == 1) {
+					if (hitTest == 1 && minimumHeightNormalReached == true) {
 						arrowUpHit = true;
 					}
 				}
@@ -422,7 +430,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 				static bool arrowDownHit = false;
 				if (arrowDownHit == false) {
 					int hitTest = npoly(nvert, vertArrowDown[0], vertArrowDown[1], position.v[0], position.v[2]);
-					if (hitTest == 1) {
+					if (hitTest == 1 && minimumHeightExtendedReached == true) {
 						arrowDownHit = true;
 					}
 				}
@@ -430,7 +438,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 				static bool arrowRechtsHit = false;
 				if (arrowRechtsHit == false) {
 					int hitTest = npoly(nvert, vertArrowRight[0], vertArrowRight[1], position.v[0], position.v[2]);
-					if (hitTest == 1) {
+					if (hitTest == 1 && minimumHeightNormalReached == true) {
 						arrowRechtsHit = true;
 					}
 				}
@@ -438,7 +446,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 				static bool arrowLinksHit = false;
 				if (arrowLinksHit == false) {
 					int hitTest = npoly(nvert, vertArrowLeft[0], vertArrowLeft[1], position.v[0], position.v[2]);
-					if (hitTest == 1) {
+					if (hitTest == 1 && minimumHeightNormalReached == true) {
 						arrowLinksHit = true;
 					}
 				}
@@ -518,10 +526,6 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 					//dprintf("\nUP: %d; DOWN: %d; LEFT: %d; RIGHT: %d", arrowUpPressed, arrowDownPressed, arrowLinksPressed, arrowRechtsPressed);
 				}
-			}
-			else {
-				//dprintf("\n%.5f", position.v[1] - bodenhoeheY);
-			}
 		}
 		else {
 			dprintf("\nFertig initialisiert. Berechne Punkte.");
@@ -588,6 +592,11 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 		refObenRechtsX = position.v[0];
 		refObenRechtsY = position.v[1];
 		refObenRechtsZ = position.v[2];
+		//this is just my own playspace and I hate re-calibrating
+		//refObenRechtsX = -1.49375f;
+		//refObenRechtsY = 0.19693f;
+		//refObenRechtsZ = -0.42378f;
+
 		initialisiert1Bool = true;
 		indexTracker1 = index;
 		dprintf("\nInitialisiert(1): %s, x = %.5f, y = %.5f, z = %.5f",
@@ -599,6 +608,11 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 		refUntenLinksX = position.v[0];
 		refUntenLinksY = position.v[1];
 		refUntenLinksZ = position.v[2];
+		//this is just my own playspace and I hate re-calibrating
+		//refObenRechtsX = -0.52968f;
+		//refObenRechtsY = 0.17833f;
+		//refObenRechtsZ = 0.42454f;
+
 		initialisiert2Bool = true;
 		indexTracker2 = index;
 		dprintf("\nInitialisiert(2): %s, x = %.5f, y = %.5f, z = %.5f",
