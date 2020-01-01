@@ -20,3 +20,7 @@ After startup of this program, you have 10 seconds to stay front-facing on your 
 the raw tracker position for everything! As soon as StepMania is being started, the calibration is finished and you should 
 be able to play. If you start the program from within visual studio, you will be able to see the debug logs which is helpful. 
 Else just download the StepmaniaVR folder from Github and run the StemaniaVR.exe from within that folder.
+
+The sourcecode can be found in github under /StepmaniaVR/sourcecode/samples/
+Just open this file in Visual Studio: /StepmaniaVR/sourcecode/samples/samples_vs2017.sln
+The relevant sourcecode can be found in samples/hellovr_opengl/hellovr_opengl_main.cpp
