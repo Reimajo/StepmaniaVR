@@ -2,6 +2,9 @@
 A Stepmania DDR Dance-Pad emulator using SteamVR with Vive Trackers. This program was made by KeksTheFurry and Tekki 
 in only one day with almost zero knowledge about SteamVR and C++.  
 
+See the software in action (together with Stepmania 5):
+https://www.youtube.com/watch?v=2mgoQEJnbRI
+
 It uses third party source code from SteamVR, as well as code snippets from various websites (check source code for details). 
 We do not claim any of that, do whatever you want with it. This source code is very ugly and we are aware of that, but it works. 
 
