@@ -29,3 +29,5 @@ Just open this file in Visual Studio: /StepmaniaVR/sourcecode/samples/StepmaniaV
 The relevant sourcecode can be found in samples/hellovr_opengl/StepmaniaVR_DancePad_Main.cpp
 
 IMPORTANT: There is currently no detection in which way you are facing, so you might need to turn around for the calibration (change left and right feet) if right/left and up/down keys are wrong. Also you may have to run the .exe twice unless you start it from within Visual Studio, we have no idea why that is the case.
+
+This program is incredible fast, resulting in multiple key presses due to jitter in tracking. Because of that, you should definitely set the "Input debounce time" in Stepmania to e.g. 20ms (or whatever works best for you). To do this, open Stepmania and go to Options -> Input Options -> Advanced -> "Input debounce time" and set it to 20ms or play around with it, I haven't done much testing as I find 20ms to work fine for me.
