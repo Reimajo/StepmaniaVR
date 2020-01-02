@@ -398,12 +398,12 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 			bool minimumHeightNormalReached = false;
 			bool minimumHeightExtendedReached = false;
-			// 0.03f is known good value for up, left and right arrow
-			if (position.v[1] - bodenhoeheY < 0.03f) {
+			// 0.03f or 0.04f is known good value for up, left and right arrow
+			if (position.v[1] - bodenhoeheY < 0.04f) {
 				minimumHeightNormalReached = true;
 			}
-			// a bigger tolerance for the down-arrow
-			if (position.v[1] - bodenhoeheY < 0.04f) {
+			// a slightly bigger tolerance for the down-arrow (can also be the same), 0.04f and 0.05f are known good values
+			if (position.v[1] - bodenhoeheY < 0.05f) {
 				minimumHeightExtendedReached = true;
 			}
 
