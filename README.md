@@ -25,7 +25,7 @@ be able to play. If you start the program from within visual studio, you will be
 Else just download the StepmaniaVR folder from Github and run the StemaniaVR.exe from within that folder.
 
 The sourcecode can be found in github under /StepmaniaVR/sourcecode/samples/
-Just open this file in Visual Studio: /StepmaniaVR/sourcecode/samples/samples_vs2017.sln
-The relevant sourcecode can be found in samples/hellovr_opengl/hellovr_opengl_main.cpp
+Just open this file in Visual Studio: /StepmaniaVR/sourcecode/samples/StepmaniaVR.sln
+The relevant sourcecode can be found in samples/hellovr_opengl/StepmaniaVR_DancePad_Main.cpp
 
-IMPORTANT: There is currently no detection in which way you are facing, so you might need to turn around for the calibration (change left and right feet) if right/left and up/down keys are wrong.
+IMPORTANT: There is currently no detection in which way you are facing, so you might need to turn around for the calibration (change left and right feet) if right/left and up/down keys are wrong. Also you may have to run the .exe twice unless you start it from within Visual Studio, we have no idea why that is the case.
