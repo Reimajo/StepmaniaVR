@@ -26,3 +26,6 @@ Just open this file in Visual Studio: /StepmaniaVR/sourcecode/samples/samples_vs
 The relevant sourcecode can be found in samples/hellovr_opengl/hellovr_opengl_main.cpp
 
 IMPORTANT: There is currently no detection in which way you are facing, so you might need to turn around for the calibration (change left and right feet) if right/left and up/down keys are wrong.
+
+See the software in action (together with Stepmania 5):
+https://www.youtube.com/watch?v=2mgoQEJnbRI
