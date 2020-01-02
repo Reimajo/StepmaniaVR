@@ -1,6 +1,11 @@
-﻿  hellovr_opengl_main.cpp
-c:\users\felix\documents\stepmaniarvr\openvr-master\samples\hellovr_opengl\hellovr_opengl_main.cpp(621): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  lodepng.cpp
+  Matrices.cpp
+  pathtools.cpp
+  strtools.cpp
+  hellovr_opengl_main.cpp
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\hellovr_opengl_main.cpp(638): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdlib.h(927): note: Siehe Deklaration von "mbstowcs"
-c:\users\felix\documents\stepmaniarvr\openvr-master\samples\hellovr_opengl\hellovr_opengl_main.cpp(1135): warning C4101: "event": Unreferenzierte lokale Variable
-c:\users\felix\documents\stepmaniarvr\openvr-master\samples\hellovr_opengl\hellovr_opengl_main.cpp(1234): warning C4101: "trackedDevicePose": Unreferenzierte lokale Variable
-  hellovr_opengl.vcxproj -> C:\Users\Felix\Documents\StepmaniarVR\openvr-master\samples\hellovr_opengl\..\bin\win32\hellovr_opengl.exe
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\hellovr_opengl_main.cpp(1152): warning C4101: "event": Unreferenzierte lokale Variable
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\hellovr_opengl_main.cpp(1251): warning C4101: "trackedDevicePose": Unreferenzierte lokale Variable
+  Code wird generiert...
+  hellovr_opengl.vcxproj -> C:\Users\Felix\Documents\GitHub\StepmaniaVR\Sourcecode\samples\hellovr_opengl\..\bin\win32\hellovr_opengl.exe

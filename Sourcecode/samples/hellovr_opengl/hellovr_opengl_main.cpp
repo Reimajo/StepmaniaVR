@@ -395,28 +395,31 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 				start = std::chrono::high_resolution_clock::now();
 			}
+
 			bool minimumHeightNormalReached = false;
 			bool minimumHeightExtendedReached = false;
-			if (position.v[1] - bodenhoeheY < 0.03f) { // 0.03f is known good value
+			// 0.03f is known good value for up, left and right arrow
+			if (position.v[1] - bodenhoeheY < 0.03f) {
 				minimumHeightNormalReached = true;
 			}
-			else if (position.v[1] - bodenhoeheY < 0.04f) {
+			// a bigger tolerance for the down-arrow
+			if (position.v[1] - bodenhoeheY < 0.04f) {
 				minimumHeightExtendedReached = true;
-				//dprintf("\n%.5f", position.v[1] - bodenhoeheY);
 			}
 
-				float vertArrowUp[2][4]{
-					{ p32_X, p33_X, p43_X, p42_X },{ p32_Y, p33_Y, p43_Y, p42_Y }
-				};
-				float vertArrowDown[2][4]{
-					{ p12_X, p13_X, p23_X, p22_X },{ p12_Y, p13_Y, p23_Y, p22_Y }
-				};
-				float vertArrowRight[2][4]{
-					{ p23_X, p24_X, p34_X, p33_X },{ p23_Y, p24_Y, p34_Y, p33_Y }
-				};
-				float vertArrowLeft[2][4]{
-					{ p21_X, p22_X, p32_X, p31_X },{ p21_Y, p22_Y, p32_Y, p31_Y }
-				};
+			//define the hit area for each arrow 
+			float vertArrowUp[2][4]{
+				{ p32_X, p33_X, p43_X, p42_X },{ p32_Y, p33_Y, p43_Y, p42_Y }
+			};
+			float vertArrowDown[2][4]{
+				{ p12_X, p13_X, p23_X, p22_X },{ p12_Y, p13_Y, p23_Y, p22_Y }
+			};
+			float vertArrowRight[2][4]{
+				{ p23_X, p24_X, p34_X, p33_X },{ p23_Y, p24_Y, p34_Y, p33_Y }
+			};
+			float vertArrowLeft[2][4]{
+				{ p21_X, p22_X, p32_X, p31_X },{ p21_Y, p22_Y, p32_Y, p31_Y }
+			};
 
 				// ------------------- Arrow UP ---------------------------------
 				static bool arrowUpHit = false;
