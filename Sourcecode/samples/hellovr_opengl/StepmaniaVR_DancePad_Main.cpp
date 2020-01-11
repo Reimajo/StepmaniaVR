@@ -1,4 +1,9 @@
 //========= Copyright Valve Corporation ============//
+
+//New for console stream
+#include <iostream>
+// End of new stuff
+
 #include <windows.h>
 #include <stdio.h>
 #include <tchar.h>
@@ -290,9 +295,11 @@ void dprintf(const char *fmt, ...)
 	vsprintf_s(buffer, fmt, args);
 	va_end(args);
 
-	if (g_bPrintf)
-		printf("%s", buffer);
-
+	if (g_bPrintf) {
+	printf("%s", buffer);
+	//std::cout << buffer;
+	}
+	
 	OutputDebugStringA(buffer);
 }
 
@@ -381,7 +388,22 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 	static auto start = std::chrono::high_resolution_clock::now();
 	static auto start2 = std::chrono::high_resolution_clock::now();
 
+	static bool firstRun = true;
+	if (firstRun){
+		firstRun = false;
+		dprintf("\n------------------------------------------------------");
+		dprintf("\nThis virtual dancepad was made by Reimajo and Tekki.");
+		dprintf("\nPlease check the README.md for instructions and the Dancepad_scematic.jpg for how to calibrate correctly.");
+		dprintf("\nBoth files can be found at https://github.com/Reimajo/StepmaniaVR.");
+		dprintf("\nMake sure to check for new versions on this github page to stay up to date for bugfixes and improvements.");
+		dprintf("\n------------------------------------------------------\n");
+	}
+
+	static float triggerHeightNormal = 0.04f;
+	static float triggerHeightExtended = 0.05f;
+
 	if (zeitNachStart < 10) {
+		dprintf("\nGet ready for calibration in %i", 10 - zeitNachStart);
 		zeitNachStart++;
 		ThreadSleep(1000); //sleep 1 second
 	}
@@ -399,11 +421,11 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 			bool minimumHeightNormalReached = false;
 			bool minimumHeightExtendedReached = false;
 			// 0.03f or 0.04f is known good value for up, left and right arrow
-			if (position.v[1] - bodenhoeheY < 0.04f) {
+			if (position.v[1] - bodenhoeheY < triggerHeightNormal ) {
 				minimumHeightNormalReached = true;
 			}
 			// a slightly bigger tolerance for the down-arrow (can also be the same), 0.04f and 0.05f are known good values
-			if (position.v[1] - bodenhoeheY < 0.05f) {
+			if (position.v[1] - bodenhoeheY < triggerHeightExtended) {
 				minimumHeightExtendedReached = true;
 			}
 
@@ -531,9 +553,15 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 				}
 		}
 		else {
-			dprintf("\nFertig initialisiert. Berechne Punkte.");
+			dprintf("\nBoth trackers are calibrated, calculating reference points now.");
 			bodenhoeheY = (refObenRechtsY + refUntenLinksY) / 2;
 
+			dprintf("\n\nTracker calibration height (1): %.5f", refObenRechtsY);
+			dprintf("\nTracker calibration height (2): %.5f", refUntenLinksY);
+			dprintf("\nCalibrated height (AVG): %.5f \n", bodenhoeheY);
+			dprintf("\nIMPORTANT: Make sure those values are close to each other by mounting the trackers at the same height!\nTheir height different should not exceed 0.01\n");
+			dprintf("\nTrigger height (normal) is: %.5f", triggerHeightNormal);
+			dprintf("\nTrigger height (extended) is: %.5f \n", triggerHeightExtended);
 			p44_X = refObenRechtsX;
 			p44_Y = refObenRechtsZ;
 			p11_X = refUntenLinksX;
@@ -570,24 +598,24 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 			p34_Y = (p44_Y + (1.0f / 3.0f * (p14_Y - (p44_Y))));
 			p24_Y = (p44_Y + (2.0f / 3.0f * (p14_Y - (p44_Y))));
 
-			dprintf("\n%.5f\t%.5f", p44_X, p44_Y);
-			dprintf("\n%.5f\t%.5f", p33_X, p33_Y);
-			dprintf("\n%.5f\t%.5f", p22_X, p22_Y);
-			dprintf("\n%.5f\t%.5f", p11_X, p11_Y);
-			dprintf("\n%.5f\t%.5f", p12_X, p12_Y);
-			dprintf("\n%.5f\t%.5f", p13_X, p13_Y);
-			dprintf("\n%.5f\t%.5f", p14_X, p14_Y);
-			dprintf("\n%.5f\t%.5f", p23_X, p23_Y);
-			dprintf("\n%.5f\t%.5f", p32_X, p32_Y);
-			dprintf("\n%.5f\t%.5f", p41_X, p41_Y);
-			dprintf("\n%.5f\t%.5f", p21_X, p21_Y);
-			dprintf("\n%.5f\t%.5f", p31_X, p31_Y);
-			dprintf("\n%.5f\t%.5f", p42_X, p42_Y);
-			dprintf("\n%.5f\t%.5f", p43_X, p43_Y);
-			dprintf("\n%.5f\t%.5f", p34_X, p34_Y);
-			dprintf("\n%.5f\t%.5f", p24_X, p24_Y);
+			dprintf("\n%.5f   %.5f", p44_X, p44_Y);
+			dprintf("\n%.5f   %.5f", p33_X, p33_Y);
+			dprintf("\n%.5f   %.5f", p22_X, p22_Y);
+			dprintf("\n%.5f   %.5f", p11_X, p11_Y);
+			dprintf("\n%.5f   %.5f", p12_X, p12_Y);
+			dprintf("\n%.5f   %.5f", p13_X, p13_Y);
+			dprintf("\n%.5f   %.5f", p14_X, p14_Y);
+			dprintf("\n%.5f   %.5f", p23_X, p23_Y);
+			dprintf("\n%.5f   %.5f", p32_X, p32_Y);
+			dprintf("\n%.5f   %.5f", p41_X, p41_Y);
+			dprintf("\n%.5f   %.5f", p21_X, p21_Y);
+			dprintf("\n%.5f   %.5f", p31_X, p31_Y);
+			dprintf("\n%.5f   %.5f", p42_X, p42_Y);
+			dprintf("\n%.5f   %.5f", p43_X, p43_Y);
+			dprintf("\n%.5f   %.5f", p34_X, p34_Y);
+			dprintf("\n%.5f   %.5f", p24_X, p24_Y);
 			punkteSchonBerechnetBool = true;
-			dprintf("\nfertig");
+			dprintf("\n\nFinished calculation, reference points are now set.\nIf your arrow keys are mirrored, switch your tracker positions and calibrate again.");
 			startStepMania();
 		}
 	}
@@ -602,7 +630,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 		initialisiert1Bool = true;
 		indexTracker1 = index;
-		dprintf("\nInitialisiert(1): %s, x = %.5f, y = %.5f, z = %.5f",
+		dprintf("\n\nInitialized tracker (1) as: %s, x = %.5f, y = %.5f, z = %.5f",
 			deviceName,
 			position.v[0], position.v[1], position.v[2]
 		);
@@ -618,13 +646,20 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 
 		initialisiert2Bool = true;
 		indexTracker2 = index;
-		dprintf("\nInitialisiert(2): %s, x = %.5f, y = %.5f, z = %.5f",
+		dprintf("\nInitialized tracker (2) as: %s, x = %.5f, y = %.5f, z = %.5f \n",
 			deviceName,
 			position.v[0], position.v[1], position.v[2]
 		);
 	}
 	else {
-		dprintf("\n%d nicht zugeordnet.", index);
+		/*if (initialisiert1Bool && initialisiert2Bool) {
+			dprintf("\nDevice index %d is not assigned. You have more than 2 trackers active.", index);
+		} else if (initialisiert1Bool==false) {
+		dprintf("\nWe can't find tracker 1.", index);
+		}
+		else if (initialisiert2Bool == false) {
+			dprintf("\nWe can't find tracker 2.", index);
+		}*/
 	}
 	// Referenz oben rechts: TRACKER, x = -1.46459, z = -0.45302
 	// Referenz unten links: TRACKER, x = -0.54473, z = 0.42761
@@ -634,30 +669,45 @@ void CMainApplication::startStepMania() {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	char text[] = "C:\\Games\\StepMania 5\\Program\\StepMania.exe";
+	dprintf("\n\nTrying to launch Stepmania now from this path: '%s'", text);
+	dprintf("\nIf your game is not launching, please check if this path is correct.");
+	dprintf("\nIf not, you can also launch it manually now.");
+	dprintf("\n\n-------------------------------------------------------");
+	dprintf("\n\nIMPORTANT: Stepmania (the game) must keep focus all the time to receive the arrow key inputs!");
+	dprintf("\nTo give focus to Stepmania, click with your mouse somewhere inside the game.");
+	dprintf("\n\nKeypresses are now also printed inside here to see if our virtual keypad works correct.");
+	dprintf("\n\n\nYou can also minimize this console now if you want.");
+	dprintf("\n-------------------------------------------------------");
+	dprintf("\n\n >> Keypresses are printed from here on <<");
 	wchar_t wtext[47];
 	mbstowcs(wtext, text, strlen(text) + 1);//Plus null
 	LPWSTR ptr = wtext;
+	try {
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
 
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	ZeroMemory(&pi, sizeof(pi));
-
-	// Start the child process. 
-	if (!CreateProcess(NULL,   // No module name (use command line)
-		ptr,
-		NULL,           // Process handle not inheritable
-		NULL,           // Thread handle not inheritable
-		FALSE,          // Set handle inheritance to FALSE
-		CREATE_NEW_PROCESS_GROUP,              // No creation flags
-		NULL,           // Use parent's environment block
-		NULL,           // Use parent's starting directory 
-		&si,            // Pointer to STARTUPINFO structure
-		&pi)           // Pointer to PROCESS_INFORMATION structure
-		)
-	{
-		printf("CreateProcess failed (%d).\n", GetLastError());
-		return;
+		// Start the child process. 
+		if (!CreateProcess(NULL,   // No module name (use command line)
+			ptr,
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			CREATE_NEW_PROCESS_GROUP,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("Failed to launch Stepmania (%d).\n", GetLastError());
+			return;
+		}
 	}
+	catch (int x) {
+		dprintf("\nException caught while trying to launch Stepmania.");
+	}
+	
 }
 
 void CMainApplication::keyDown(WORD keycode) {
@@ -1256,6 +1306,14 @@ void CMainApplication::printPositionalData()
 			vr::HmdQuaternion_t quaternion;
 			vr::ETrackedDeviceClass trackedDeviceClass = vr::VRSystem()->GetTrackedDeviceClass(unDevice);
 
+			static int foundTracker1MANA = 100;
+			static int foundTracker2MANA = 100;
+			static int tracker1ID = -1;
+			static int tracker2ID = -1;
+			static bool tracker1missingPrinted = false;
+			static bool tracker2missingPrinted = false;
+			static bool moreThan2TrackersPrinted = false;
+
 			switch (trackedDeviceClass) {
 			case vr::ETrackedDeviceClass::TrackedDeviceClass_HMD:
 				break;
@@ -1271,12 +1329,33 @@ void CMainApplication::printPositionalData()
 
 			case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
 				
+
+
 				vr::VRSystem()->GetControllerStateWithPose(vr::TrackingUniverseStanding, unDevice, &controllerState,
 					sizeof(controllerState), &trackedControllerPose);
 				// print positiona data for a general vive tracker.
 				poseMatrix = trackedControllerPose.mDeviceToAbsoluteTracking; // This matrix contains all positional and rotational data.
 				position = GetPosition(trackedControllerPose.mDeviceToAbsoluteTracking);
 				quaternion = GetRotation(trackedControllerPose.mDeviceToAbsoluteTracking);
+
+				if (tracker1ID == -1) {
+					tracker1ID = unDevice;
+				}
+				else if (tracker2ID == -1 && unDevice != tracker1ID) {
+					tracker2ID = unDevice;
+				}
+				
+
+				if (unDevice == tracker1ID) {
+					foundTracker1MANA = 1000;
+					tracker1missingPrinted = false;
+				} else if (unDevice == tracker2ID) {
+					foundTracker2MANA = 1000;
+					tracker1missingPrinted = false;
+				} else if (moreThan2TrackersPrinted==false){
+					moreThan2TrackersPrinted = true;
+					dprintf("\nTracker is not assigned. You maybe have more than 2 trackers active (not an issue, we will ignore that one).");
+				}
 
 				printDevicePositionalData(unDevice, "TRACKER", poseMatrix, position, quaternion);
 
@@ -1315,6 +1394,24 @@ void CMainApplication::printPositionalData()
 				//}
 
 				//break;
+			}
+			
+			foundTracker1MANA -= 1;
+			foundTracker2MANA -= 1;
+
+			if (foundTracker1MANA <= 0) {
+				if (tracker1missingPrinted == false) {
+					tracker1missingPrinted = true;
+					dprintf("\n\n (!) Tracker 1 is currently missing (!)\n");
+				}
+				foundTracker1MANA = 1000;
+			}
+			if (foundTracker2MANA <= 0) {
+				if (tracker2missingPrinted == false) {
+					tracker2missingPrinted = true;
+					dprintf("\n\n (!) Tracker 2 is currently missing (!)\n");
+				}
+				foundTracker1MANA = 1000;
 			}
 
 		}
