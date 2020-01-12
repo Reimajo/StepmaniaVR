@@ -304,12 +304,12 @@ void dprintf(const char *fmt, ...)
 }
 
 //-----------------------------------------------------------------------------
-// ################## OUR SOURCE CODE FOR STEPMANIA FROM HERE ON ###################
+// ################## OUR MAIN SOURCE CODE FOR STEPMANIA FROM HERE ON ###################
 //
  //This program was made by KeksTheFurry and Tekki in one day with almost zero knowledge about SteamVR and C++.
  //It uses third party source code from SteamVR as well as code snippets from various websites.
  //We do not claim any of that, do whatever you want with it. This source code is very ugly and we are aware of that.
- //The only purpose of this program is to have a proof-of-concept that this is possible and works in theory.
+ //The only purpose of this program is to have a proof-of-concept that this is possible and works.
 
  //This tool requieres Steam VR being up & running before you start it. You need 2 Vive Trackers 
  //on your feet or on your legs (being on your ancles & facing forward is recommended).
@@ -333,19 +333,21 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 {
 	LARGE_INTEGER qpc; // Query Performance Counter for Acquiring high-resolution time stamps.
 					   // From MSDN: "QPC is typically the best method to use to time-stamp events and 
-					   // measure small time intervals that occur on the same system or virtual machine.
+					   // measure small time intervals that occur on the same system or virtual machine."
 	QueryPerformanceCounter(&qpc);
 
-	static float bodenhoeheY = 0;
+	static float tracker1FloorHeightY = 0;
+	static float tracker2FloorHeightY = 0;
 	static bool initialisiert1Bool = false;
-	static float refObenRechtsX = 0;
-	static float refObenRechtsY = 0;
-	static float refObenRechtsZ = 0;
+	static float refTopRightCornerX = 0;
+	static float refTopRightCornerY = 0;
+	static float refTopRightCornerZ = 0;
 	static bool initialisiert2Bool = false;
-	static float refUntenLinksX = 0;
-	static float refUntenLinksY = 0;
-	static float refUntenLinksZ = 0;
-	static int zeitNachStart = 0;
+	static float refBottomLeftCornerX = 0;
+	static float refBottomLeftCornerY = 0;
+	static float refBottomLeftCornerZ = 0;
+	static int timeAfterStart = 0;
+	static int timeAfterCornerCalibration = 0;
 
 	static float p44_X = 0;
 	static float p33_X = 0;
@@ -384,7 +386,8 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 	static int indexTracker2 = 0;
 	const int nvert = 4;
 
-	static bool punkteSchonBerechnetBool = false;
+	static bool cornerPointsAreCalculated = false;
+	static bool heightIsSet = false;
 	static auto start = std::chrono::high_resolution_clock::now();
 	static auto start2 = std::chrono::high_resolution_clock::now();
 
@@ -393,6 +396,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 		firstRun = false;
 		dprintf("\n------------------------------------------------------");
 		dprintf("\nThis virtual dancepad was made by Reimajo and Tekki.");
+		dprintf("\nYou are currently running version 1.3 and an update might be available on github.");
 		dprintf("\nPlease check the README.md for instructions and the Dancepad_scematic.jpg for how to calibrate correctly.");
 		dprintf("\nBoth files can be found at https://github.com/Reimajo/StepmaniaVR.");
 		dprintf("\nMake sure to check for new versions on this github page to stay up to date for bugfixes and improvements.");
@@ -402,18 +406,25 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 	static float triggerHeightNormal = 0.04f;
 	static float triggerHeightExtended = 0.05f;
 
-	if (zeitNachStart < 10) {
-		dprintf("\nGet ready for calibration in %i", 10 - zeitNachStart);
-		zeitNachStart++;
+	if (timeAfterStart < 10) {
+		static bool stepOntoCornersPrinted = false;
+		if (stepOntoCornersPrinted == false) {
+			dprintf("\n\n#####################################################################################");
+			dprintf("\n Step onto top-right and bottom-left corner of your virtual pad space and stay still.\n Both trackers should be placed right above the corners.");
+			dprintf("\n#####################################################################################\n");
+			stepOntoCornersPrinted = true;
+		}
+		dprintf("\nGet ready for corner calibration in %i", 10 - timeAfterStart);
+		timeAfterStart++;
 		ThreadSleep(1000); //sleep 1 second
 	}
 	else if (initialisiert1Bool && initialisiert2Bool) {
-		if (punkteSchonBerechnetBool) {
+		if (cornerPointsAreCalculated) {
 			if (index == indexTracker1) {
 				auto ende2 = std::chrono::high_resolution_clock::now();
 
 				std::chrono::duration<double> elapsed = ende2 - start2;
-				//dprintf("\nElapsed time nicht unseres: %f", elapsed.count());
+				//dprintf("\nElapsed time from not-our-code: %f", elapsed.count());
 
 				start = std::chrono::high_resolution_clock::now();
 			}
@@ -421,11 +432,11 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 			bool minimumHeightNormalReached = false;
 			bool minimumHeightExtendedReached = false;
 			// 0.03f or 0.04f is known good value for up, left and right arrow
-			if (position.v[1] - bodenhoeheY < triggerHeightNormal ) {
+			if (((index == indexTracker1) && (position.v[1] - tracker1FloorHeightY < triggerHeightNormal)) || ((index == indexTracker2) && (position.v[1] - tracker2FloorHeightY < triggerHeightNormal))) {
 				minimumHeightNormalReached = true;
 			}
 			// a slightly bigger tolerance for the down-arrow (can also be the same), 0.04f and 0.05f are known good values
-			if (position.v[1] - bodenhoeheY < triggerHeightExtended) {
+			if (((index == indexTracker1) && (position.v[1] - tracker1FloorHeightY < triggerHeightExtended)) || ((index == indexTracker2) && (position.v[1] - tracker2FloorHeightY < triggerHeightExtended))) {
 				minimumHeightExtendedReached = true;
 			}
 
@@ -460,19 +471,19 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 					}
 				}
 				// ------------------- Arrow RIGHT ---------------------------------
-				static bool arrowRechtsHit = false;
-				if (arrowRechtsHit == false) {
+				static bool arrowRightHit = false;
+				if (arrowRightHit == false) {
 					int hitTest = npoly(nvert, vertArrowRight[0], vertArrowRight[1], position.v[0], position.v[2]);
 					if (hitTest == 1 && minimumHeightNormalReached == true) {
-						arrowRechtsHit = true;
+						arrowRightHit = true;
 					}
 				}
 				// ------------------- Arrow LEFT ---------------------------------
-				static bool arrowLinksHit = false;
-				if (arrowLinksHit == false) {
+				static bool arrowLeftHit = false;
+				if (arrowLeftHit == false) {
 					int hitTest = npoly(nvert, vertArrowLeft[0], vertArrowLeft[1], position.v[0], position.v[2]);
 					if (hitTest == 1 && minimumHeightNormalReached == true) {
-						arrowLinksHit = true;
+						arrowLeftHit = true;
 					}
 				}
 				// Endkontrolle wenn der Tracker 2 durchlaufen wurde
@@ -511,61 +522,80 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 						atLeastOneKeyPressed = true;
 					}
 					// ------------------- Arrow RIGHT ---------------------------------
-					static bool arrowRechtsPressed = false;
-					if (arrowRechtsPressed == false && arrowRechtsHit == true) {
+					static bool arrowRightPressed = false;
+					if (arrowRightPressed == false && arrowRightHit == true) {
 						dprintf("\nArrowRechts -> PRESS");
-						arrowRechtsPressed = true;
+						arrowRightPressed = true;
 						keyDown(ARROW_RIGHT);
 						atLeastOneKeyPressed = true;
 					}
-					else if (arrowRechtsPressed == true && arrowRechtsHit == false) {
+					else if (arrowRightPressed == true && arrowRightHit == false) {
 						dprintf("\nArrowRechts -> RELEASE");
 						keyUp(ARROW_RIGHT);
-						arrowRechtsPressed = false;
+						arrowRightPressed = false;
 						atLeastOneKeyPressed = true;
 					}
 					// ------------------- Arrow LEFT ---------------------------------
-					static bool arrowLinksPressed = false;
-					if (arrowLinksPressed == false && arrowLinksHit == true) {
+					static bool arrowLeftPressed = false;
+					if (arrowLeftPressed == false && arrowLeftHit == true) {
 						dprintf("\nArrowLinks -> PRESS");
-						arrowLinksPressed = true;
+						arrowLeftPressed = true;
 						keyDown(ARROW_LEFT);
 						atLeastOneKeyPressed = true;
 					}
-					else if (arrowLinksPressed == true && arrowLinksHit == false) {
+					else if (arrowLeftPressed == true && arrowLeftHit == false) {
 						dprintf("\nArrowLinks -> RELEASE");
 						keyUp(ARROW_LEFT);
-						arrowLinksPressed = false;
+						arrowLeftPressed = false;
 						atLeastOneKeyPressed = true;
 					}
-					arrowLinksHit = false;
-					arrowRechtsHit = false;
+					arrowLeftHit = false;
+					arrowRightHit = false;
 					arrowDownHit = false;
 					arrowUpHit = false;
 					if (atLeastOneKeyPressed) {
 						auto ende = std::chrono::high_resolution_clock::now();
 						std::chrono::duration<double> elapsed = ende - start;
-						dprintf("\nElapsed time: %f", elapsed.count());
+						dprintf("\nInput delay: %f seconds", elapsed.count());
 					}
 					start2 = std::chrono::high_resolution_clock::now();
 
 					//dprintf("\nUP: %d; DOWN: %d; LEFT: %d; RIGHT: %d", arrowUpPressed, arrowDownPressed, arrowLinksPressed, arrowRechtsPressed);
 				}
 		}
+		else if (heightIsSet == false) {
+			static bool stepBackToMiddlePrinted = false;
+			if (stepBackToMiddlePrinted == false) {
+				dprintf("\nSuccessfully set both corners of your playspace.");
+				dprintf("\n\n###################################################################");
+				dprintf("\n Now step back onto the middle pad with both feets and stay still.");
+				dprintf("\n###################################################################\n");
+				stepBackToMiddlePrinted = true;
+			}
+			if (timeAfterCornerCalibration < 10) {
+				dprintf("\nGet ready for height calibration in %i", 10 - timeAfterCornerCalibration);
+				timeAfterCornerCalibration++;
+				ThreadSleep(1000); //sleep 1 second
+			}
+			else {
+				heightIsSet = true;
+			}
+		}
 		else {
 			dprintf("\nBoth trackers are calibrated, calculating reference points now.");
-			bodenhoeheY = (refObenRechtsY + refUntenLinksY) / 2;
-
-			dprintf("\n\nTracker calibration height (1): %.5f", refObenRechtsY);
-			dprintf("\nTracker calibration height (2): %.5f", refUntenLinksY);
-			dprintf("\nCalibrated height (AVG): %.5f \n", bodenhoeheY);
-			dprintf("\nIMPORTANT: Make sure those values are close to each other by mounting the trackers at the same height!\nTheir height different should not exceed 0.01\n");
+			//bodenhoeheY = (refObenRechtsY + refUntenLinksY) / 2;
+			tracker1FloorHeightY = refTopRightCornerY;
+			tracker2FloorHeightY = refBottomLeftCornerY;
+			dprintf("\n\nTracker calibration height (1): %.5f", refTopRightCornerY);
+			dprintf("\nTracker calibration height (2): %.5f", refBottomLeftCornerY);
+			//dprintf("\nCalibrated height (AVG): %.5f \n", bodenhoeheY);
+			//dprintf("\nIMPORTANT: Make sure those values are close to each other by mounting the trackers at the same height!\nTheir height different should not exceed 0.01\n");
 			dprintf("\nTrigger height (normal) is: %.5f", triggerHeightNormal);
 			dprintf("\nTrigger height (extended) is: %.5f \n", triggerHeightExtended);
-			p44_X = refObenRechtsX;
-			p44_Y = refObenRechtsZ;
-			p11_X = refUntenLinksX;
-			p11_Y = refUntenLinksZ;
+			p44_X = refTopRightCornerX;
+			p44_Y = refTopRightCornerZ;
+			p11_X = refBottomLeftCornerX;
+			p11_Y = refBottomLeftCornerZ;
 
 			p14_X = (p44_X + (1.0f / 2.0f* (p11_X - (p44_X)))) + ((p44_Y - (p44_Y + (1.0f / 2.0f* (p11_Y - (p44_Y)))))*(-1));
 			p14_Y = (p44_Y + (1.0f / 2.0f* (p11_Y - (p44_Y)))) + (p44_X - (p44_X + (1.0f / 2.0f* (p11_X - (p44_X)))));
@@ -614,19 +644,19 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 			dprintf("\n%.5f   %.5f", p43_X, p43_Y);
 			dprintf("\n%.5f   %.5f", p34_X, p34_Y);
 			dprintf("\n%.5f   %.5f", p24_X, p24_Y);
-			punkteSchonBerechnetBool = true;
+			cornerPointsAreCalculated = true;
 			dprintf("\n\nFinished calculation, reference points are now set.\nIf your arrow keys are mirrored, switch your tracker positions and calibrate again.");
 			startStepMania();
 		}
 	}
 	else if (initialisiert1Bool == false && (position.v[0] != 0.0f && position.v[1] != 0.0f && position.v[2] != 0.0f)) {
-		refObenRechtsX = position.v[0];
-		refObenRechtsY = position.v[1];
-		refObenRechtsZ = position.v[2];
-		//this is just my own playspace and I hate re-calibrating
-		//refObenRechtsX = -1.49375f;
-		//refObenRechtsY = 0.19693f;
-		//refObenRechtsZ = -0.42378f;
+		refTopRightCornerX = position.v[0];
+		refTopRightCornerY = position.v[1];
+		refTopRightCornerZ = position.v[2];
+		//this is just my own playspace and don't want to re-calibrate each time I start the program. 
+		//You can perma-set your playspace (X/Z) here, but you should always calibrate the height (Y) after startup.
+		//refTopRightCornerX = -1.49375f;
+		//refTopRightCornerZ = -0.42378f;
 
 		initialisiert1Bool = true;
 		indexTracker1 = index;
@@ -636,13 +666,13 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 		);
 	}
 	else if (initialisiert2Bool == false && index != indexTracker1 && (position.v[0] != 0.0f && position.v[1] != 0.0f && position.v[2] != 0.0f)) {
-		refUntenLinksX = position.v[0];
-		refUntenLinksY = position.v[1];
-		refUntenLinksZ = position.v[2];
-		//this is just my own playspace and I hate re-calibrating
-		//refObenRechtsX = -0.52968f;
-		//refObenRechtsY = 0.17833f;
-		//refObenRechtsZ = 0.42454f;
+		refBottomLeftCornerX = position.v[0];
+		refBottomLeftCornerY = position.v[1];
+		refBottomLeftCornerZ = position.v[2];
+		//this is just my own playspace and don't want to re-calibrate each time I start the program. 
+		//You can perma-set your playspace (X/Z) here, but you should always calibrate the height (Y) after startup.
+		//refBottomLeftCornerX = -0.52968f;
+		//refBottomLeftCornerZ = 0.42454f;
 
 		initialisiert2Bool = true;
 		indexTracker2 = index;
@@ -652,6 +682,7 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 		);
 	}
 	else {
+		//Turns out this is not needed anymore because it is now catched one layer above where it makes more sense
 		/*if (initialisiert1Bool && initialisiert2Bool) {
 			dprintf("\nDevice index %d is not assigned. You have more than 2 trackers active.", index);
 		} else if (initialisiert1Bool==false) {
@@ -661,8 +692,6 @@ void CMainApplication::printDevicePositionalData(int index, const char * deviceN
 			dprintf("\nWe can't find tracker 2.", index);
 		}*/
 	}
-	// Referenz oben rechts: TRACKER, x = -1.46459, z = -0.45302
-	// Referenz unten links: TRACKER, x = -0.54473, z = 0.42761
 }
 
 void CMainApplication::startStepMania() {
@@ -931,8 +960,8 @@ bool CMainApplication::BInit()
 	{
 		m_pHMD = NULL;
 		char buf[1024];
-		sprintf_s( buf, sizeof( buf ), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
-		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL );
+		sprintf_s( buf, sizeof( buf ), "Unable to init VR runtime, is SteamVR running?\n%s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VR_Init failed, is SteamVR running?", buf, NULL );
 		return false;
 	}
 

@@ -1,8 +1,8 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: Das Zwischenverzeichnis (Debug\) enthält freigegebene Dateien aus einem anderen Projekt (hellovr_opengl.vcxproj). Dies kann zu einem falschen Bereinigungs- und Neuerstellungsverhalten führen.
   StepmaniaVR_DancePad_Main.cpp
-c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(683): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(712): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdlib.h(927): note: Siehe Deklaration von "mbstowcs"
-c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(707): warning C4101: "x": Unreferenzierte lokale Variable
-c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(1202): warning C4101: "event": Unreferenzierte lokale Variable
-c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(1301): warning C4101: "trackedDevicePose": Unreferenzierte lokale Variable
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(736): warning C4101: "x": Unreferenzierte lokale Variable
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(1231): warning C4101: "event": Unreferenzierte lokale Variable
+c:\users\felix\documents\github\stepmaniavr\sourcecode\samples\hellovr_opengl\stepmaniavr_dancepad_main.cpp(1330): warning C4101: "trackedDevicePose": Unreferenzierte lokale Variable
   hellovr_opengl.vcxproj -> C:\Users\Felix\Documents\GitHub\StepmaniaVR\Sourcecode\samples\hellovr_opengl\..\bin\win32\StepmaniaVR_DancePad.exe
