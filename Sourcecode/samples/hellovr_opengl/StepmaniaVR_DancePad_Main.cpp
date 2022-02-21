@@ -306,7 +306,7 @@ void dprintf(const char *fmt, ...)
 //-----------------------------------------------------------------------------
 // ################## OUR MAIN SOURCE CODE FOR STEPMANIA FROM HERE ON ###################
 //
- //This program was made by KeksTheFurry and Tekki in one day with almost zero knowledge about SteamVR and C++.
+ //This program was made by Tekki and Reimajo in one day with almost zero knowledge about SteamVR and C++.
  //It uses third party source code from SteamVR as well as code snippets from various websites.
  //We do not claim any of that, do whatever you want with it. This source code is very ugly and we are aware of that.
  //The only purpose of this program is to have a proof-of-concept that this is possible and works.
@@ -764,7 +764,7 @@ void CMainApplication::keyUp(WORD keycode) {
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Gibt uns 1 zurück wenn der Punkt im Polygon liegt, sonst 0
+// Purpose: Gibt uns 1 zurÃ¼ck wenn der Punkt im Polygon liegt, sonst 0
 //-----------------------------------------------------------------------------
 int CMainApplication::npoly(int nvert, float *vertx, float *verty, float testx, float testy)
 {
